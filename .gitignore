@@ -3,4 +3,8 @@ venv/
 videos/*.webm
 screenshots/*.png
 users/
+<<<<<<< HEAD
 *.zip
+=======
+*.zip
+>>>>>>> 867ee7cdfb39582e0761d7eb4008a76afc52b354
