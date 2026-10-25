@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KPDBC Universal QA Studio</title>
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <style>
+    :root {
+      --emerald-dark: #064e3b;
+      --emerald-main: #059669;
+      --emerald-light: #ecfdf5;
+      --gold-main: #d97706;
+      --gold-light: #fef3c7;
+      --border-gold: #fbbf24;
+      --bg-body: #f8fafc;
+      --text-main: #0f172a;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+    }
+
+    .top-header-compact {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-bottom: 2px solid var(--border-gold);
+      padding: 10px 18px;
+      border-radius: 10px;
+      margin-bottom: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+    .top-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--emerald-dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+    }
+
+    .btn-icon-symbol {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: var(--text-main);
+      font-size: 1rem;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .btn-icon-symbol:hover {
+      border-color: var(--gold-main);
+      background: var(--gold-light);
+      color: var(--gold-main);
+      transform: translateY(-2px);
+    }
+    .btn-icon-symbol.btn-primary-symbol {
+      background: var(--emerald-main);
+      color: #fff;
+      border-color: var(--emerald-dark);
+    }
+
+    aside.sidebar-left {
+      width: 230px;
+      background: #ffffff;
+      border-right: 1px solid #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+    .brand {
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--emerald-dark);
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .brand-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, var(--emerald-main), var(--gold-main));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 0.85rem;
+    }
+
+    .nav-list { list-style: none; padding: 10px 0; flex: 1; }
+    .nav-item {
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.86rem;
+      font-weight: 600;
+      color: #475569;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border-left: 3px solid transparent;
+      margin: 2px 0;
+    }
+    .nav-item:hover, .nav-item.active {
+      background: var(--emerald-light);
+      color: var(--emerald-main);
+      border-left-color: var(--gold-main);
+    }
+
+    main.workspace {
+      flex: 1;
+      padding: 18px 22px;
+      overflow-y: auto;
+      max-width: calc(100vw - 300px);
+    }
+
+    aside.sidebar-right {
+      width: 64px;
+      background: #ffffff;
+      border-left: 1px solid #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 18px 0;
+      gap: 12px;
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+    .dock-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: var(--emerald-dark);
+      cursor: pointer;
+      font-size: 1.15rem;
+      transition: all 0.2s ease;
+    }
+    .dock-btn:hover {
+      background: var(--gold-light);
+      border-color: var(--gold-main);
+      transform: scale(1.08);
+      color: var(--gold-main);
+    }
+
+    .card-luxury {
+      background: #ffffff;
+      border: 1.5px solid var(--border-gold);
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 18px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+    }
+
+    /* In-App Modal Overlays (Reliable Z-Index & Display) */
+    .app-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(5px);
+      z-index: 10500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .app-modal-dialog {
+      background: #ffffff;
+      border: 2px solid var(--border-gold);
+      border-radius: 12px;
+      width: 100%;
+      max-width: 520px;
+      box-shadow: 0 10px 35px rgba(0,0,0,0.25);
+      animation: modalFadeIn 0.25s ease-out;
+      overflow: hidden;
+    }
+    .app-modal-dialog.modal-dialog-large {
+      max-width: 900px;
+    }
+    @keyframes modalFadeIn {
+      from { transform: scale(0.95); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .app-modal-header {
+      background: var(--emerald-dark);
+      color: #fff;
+      padding: 12px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .app-modal-body {
+      padding: 20px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    /* Toast Notification System */
+    #app-toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 12000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .app-toast {
+      min-width: 280px;
+      background: #ffffff;
+      border: 1.5px solid var(--border-gold);
+      border-radius: 8px;
+      padding: 12px 16px;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.15);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      animation: toastSlideIn 0.3s ease-out;
+    }
+    .app-toast.toast-error { border-color: #ef4444; background: #fff5f5; }
+    .app-toast.toast-success { border-color: var(--emerald-main); background: #f0fdf4; }
+    @keyframes toastSlideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .gear-spin {
+      font-size: 3rem;
+      color: var(--gold-main);
+      animation: spin 3s linear infinite;
+    }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    .color-swatch { width: 16px; height: 16px; border-radius: 3px; display: inline-block; vertical-align: middle; border: 1px solid rgba(0,0,0,0.2); margin-right: 6px; }
+    pre { background: #064e3b; color: #a7f3d0; padding: 14px; border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 0.84rem; max-height: 380px; overflow-x: auto; }
+    .hidden { display: none !important; }
+
+    @media (max-width: 992px) {
+      body { flex-direction: column; }
+      aside.sidebar-left { width: 100%; min-height: auto; border-right: none; border-bottom: 1px solid #e2e8f0; }
+      aside.sidebar-left .nav-list { display: flex; flex-wrap: wrap; gap: 4px; padding: 6px 12px; }
+      aside.sidebar-left .nav-item { padding: 6px 10px; font-size: 0.8rem; border-left: none; border-bottom: 2px solid transparent; }
+      aside.sidebar-left .nav-item.active { border-left: none; border-bottom-color: var(--gold-main); }
+      main.workspace { max-width: 100vw; padding: 12px; }
+      aside.sidebar-right { display: none; }
+    }
+
+    
+
+@keyframes kpBug50 {
+  0%,100% { transform:scale(1); }
+  50% { transform:scale(1.08); }
+}
+@keyframes kpLens50 {
+  0%,100% { transform:translate(0,0); }
+  50% { transform:translate(1px,-1px); }
+}
+@keyframes kpOrbit50 {
+  from { transform:rotate(0deg); }
+  to { transform:rotate(360deg); }
+}
+@keyframes kpGlow50 {
+  0%,100% { opacity:1; }
+  50% { opacity:.65; }
+}
+@keyframes kpWarn50 {
+  0%,80%,100% { opacity:1; }
+  90% { opacity:.45; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .kpdbc-brand svg *,
+  .kpdbc-brand svg {
+    animation:none !important;
+  }
+}
+
+  </style>
+</head>
+<body>
+
+  <!-- Full-Screen Audit Running Spinner Overlay -->
+  <div id="scan-overlay" class="app-modal-backdrop hidden">
+    <div class="text-center">
+      <i class="bi bi-gear-wide-connected gear-spin"></i>
+      <h5 class="text-white mt-3 fw-bold">Executing Full Application Audit...</h5>
+      <p class="text-warning small mb-3">Testing Links, Inspecting Components & Capturing Logs</p>
+      <div class="progress" style="width: 260px; height: 6px; margin: 0 auto;">
+        <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning w-100"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- In-App Toast Container -->
+  <div id="app-toast-container"></div>
+
+  <!-- Left Sidebar -->
+  <aside class="sidebar-left">
+    
+<div class="kpdbc-brand" style="display:flex;align-items:center;gap:7px;font-family:Arial,Helvetica,sans-serif;">
+
+  <!-- Complete animated pentagon testing logo -->
+  <svg xmlns="http://www.w3.org/2000/svg"
+       width="34" height="34" viewBox="0 0 100 100"
+       style="display:block;flex-shrink:0;overflow:visible;"
+       fill="none" role="img" aria-label="KPDBC testing logo">
+
+    <defs>
+      <linearGradient id="kpBlue50" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#38bdf8"/>
+        <stop offset="1" stop-color="#0755e9"/>
+      </linearGradient>
+      <linearGradient id="kpRed50" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#ff6666"/>
+        <stop offset="1" stop-color="#dc2626"/>
+      </linearGradient>
+    </defs>
+
+    <!-- Pentagon interior -->
+    <path d="M50 4 L95 36 L78 91 L22 91 L5 36 Z"
+          fill="#ffffff" stroke="#e5e7eb" stroke-width="1.5"/>
+
+    <!-- Multicolor pentagon border -->
+    <path d="M50 4 L95 36" stroke="#facc15" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M95 36 L78 91" stroke="#ef4444" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M78 91 L22 91" stroke="#0755e9" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M22 91 L5 36" stroke="#06b6d4" stroke-width="8" stroke-linejoin="round"/>
+    <path d="M5 36 L50 4" stroke="#16a34a" stroke-width="8" stroke-linejoin="round"/>
+
+    <!-- Code symbol -->
+    <g stroke="#0755e9" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M24 26 L17 33 L24 40"/>
+      <path d="M38 26 L45 33 L38 40"/>
+      <path d="M35 25 L28 41"/>
+    </g>
+
+    <!-- Animated orbit -->
+    <g style="transform-origin:50px 52px;animation:kpOrbit50 8s linear infinite;">
+      <path d="M18 52 Q24 42 33 44" stroke="#16a34a" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="18" cy="52" r="3" fill="#16a34a"/>
+      <circle cx="78" cy="53" r="3" fill="#facc15"/>
+    </g>
+
+    <!-- Passed test -->
+    <g style="animation:kpGlow50 2s ease-in-out infinite;">
+      <circle cx="74" cy="27" r="10" fill="#16a34a"/>
+      <path d="M69 27 L73 31 L80 23"
+            stroke="#fff" stroke-width="3"
+            stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <!-- Warning -->
+    <g style="animation:kpWarn50 2.5s ease-in-out infinite;">
+      <path d="M15 70 L22 56 L29 70 Z" fill="#facc15"/>
+      <path d="M22 61 V65 M22 67 V67.5"
+            stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+    </g>
+
+    <!-- Failed test -->
+    <circle cx="76" cy="70" r="8" fill="#ef4444"/>
+    <path d="M73 67 L79 73 M79 67 L73 73"
+          stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+
+    <!-- Magnifying glass -->
+    <g style="transform-origin:48px 52px;animation:kpLens50 3s ease-in-out infinite;">
+      <circle cx="47" cy="52" r="20"
+              fill="#fff" stroke="url(#kpBlue50)" stroke-width="4.5"/>
+      <path d="M62 67 L77 82"
+            stroke="#0755e9" stroke-width="8" stroke-linecap="round"/>
+
+      <!-- Bug -->
+      <g style="transform-origin:47px 52px;animation:kpBug50 2s ease-in-out infinite;"
+         stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M42 39 L38 35 M52 39 L56 35"/>
+        <path d="M38 46 L33 44 M37 53 L32 55"/>
+        <path d="M56 46 L61 44 M57 53 L62 55"/>
+        <rect x="40" y="39" width="14" height="24" rx="7" fill="url(#kpRed50)"/>
+        <path d="M47 44 V58" stroke="#fff" stroke-width="2.2"/>
+      </g>
+    </g>
+  </svg>
+
+  <!-- Brand name -->
+  <div style="display:flex;flex-direction:column;gap:2px;">
+    <div style="display:flex;align-items:center;gap:3px;font-size:12.5px;font-weight:900;letter-spacing:-.4px;line-height:1.1;white-space:nowrap;">
+      <span style="color:#102b56;">KPDBC</span>
+      <span style="background:linear-gradient(90deg,#16a34a,#facc15,#ef4444,#0755e9);-webkit-background-clip:text;background-clip:text;color:transparent;">Studio</span>
+    </div>
+
+    <div style="font-size:5px;font-weight:700;letter-spacing:.2px;white-space:nowrap;">
+      <span style="color:#16a34a;">Quality</span>
+      <span style="color:#f59e0b;"> • Testing • </span>
+      <span style="color:#2563eb;">Better Software</span>
+    </div>
+
+    <div style="display:flex;gap:2px;width:90px;height:2px;margin-top:2px;border-radius:4px;overflow:hidden;">
+      <span style="background:#16a34a;flex:1;"></span>
+      <span style="background:#facc15;flex:1;"></span>
+      <span style="background:#ef4444;flex:1;"></span>
+      <span style="background:#2563eb;flex:1;"></span>
+    </div>
+  </div>
+</div>
+
+
+    <ul class="nav-list">
+      <li class="nav-item active" id="nav-overview" onclick="navigate('overview')"><i class="bi bi-pie-chart-fill text-danger"></i> Overview</li>
+      <li class="nav-item" id="nav-testcases" onclick="navigate('testcases')"><i class="bi bi-card-checklist text-success"></i> Performed Cases</li>
+      <li class="nav-item" id="nav-writer" onclick="navigate('writer')"><i class="bi bi-pencil-square text-primary"></i> Write Cases</li>
+      <li class="nav-item" id="nav-failures" onclick="navigate('failures')"><i class="bi bi-exclamation-octagon-fill text-danger"></i> Failures</li>
+      <li class="nav-item" id="nav-content" onclick="navigate('content')"><i class="bi bi-file-earmark-diff-fill text-primary"></i> Content Diff</li>
+      <li class="nav-item" id="nav-elements" onclick="navigate('elements')"><i class="bi bi-filter-square-fill text-success"></i> Elements</li>
+      <li class="nav-item" id="nav-typography" onclick="navigate('typography')"><i class="bi bi-palette-fill text-warning"></i> Typography</li>
+      <li class="nav-item" id="nav-pages" onclick="navigate('pages')"><i class="bi bi-diagram-3-fill text-info"></i> Pages</li>
+      <li class="nav-item" id="nav-powerbi" onclick="navigate('powerbi')"><i class="bi bi-bar-chart-steps text-warning"></i> Power BI</li>
+      <li class="nav-item" id="nav-video" onclick="navigate('video')"><i class="bi bi-camera-video-fill text-secondary"></i> Video</li>
+      <li class="nav-item" id="nav-code" onclick="navigate('code')"><i class="bi bi-code-slash text-info"></i> Code Studio</li>
+    </ul>
+    <div class="p-2 border-top d-none d-lg-block">
+      <button class="btn btn-outline-danger w-100 btn-sm fw-bold" onclick="stopServer()"><i class="bi bi-power"></i> Stop</button>
+    </div>
+  </aside>
+
+  <!-- Workspace -->
+  <main class="workspace">
+    <!-- Top Header -->
+    <div class="top-header-compact">
+      <h6 class="top-title">
+        <i class="bi bi-gem text-warning"></i>
+        <span>KPDBC QA Studio</span>
+        <span class="badge bg-success-subtle text-success border border-success ms-2 px-2 py-1" id="logged-user-badge">User: Guest (Login Required)</span>
+      </h6>
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn-icon-symbol" onclick="openAuthModal('login')" title="Login / Register"><i class="bi bi-person-lock"></i></button>
+        <button class="btn-icon-symbol" onclick="downloadAllTestCasesCSV()" title="Export Test Cases (CSV)"><i class="bi bi-download"></i></button>
+        <button class="btn-icon-symbol" onclick="downloadProjectBundle()" title="Download Project Bundle (.ZIP)"><i class="bi bi-file-zip-fill"></i></button>
+        <button class="btn-icon-symbol btn-primary-symbol" onclick="startScan()" title="Run Audit"><i class="bi bi-play-fill"></i></button>
+      </div>
+    </div>
+
+    <!-- Workspace Selector Bar -->
+    <div class="card-luxury py-2 px-3 mb-3">
+      <div class="row g-2 align-items-center">
+        <div class="col-md-3">
+          <div class="input-group input-group-sm">
+            <span class="input-group-text bg-white"><i class="bi bi-person text-success"></i></span>
+            <input type="text" id="user_id" class="form-control" value="KPDBC_USER" placeholder="User ID" onchange="handleUserIdChange()">
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="input-group input-group-sm">
+            <input type="text" id="project_name" class="form-control" value="Project_1" placeholder="Project" onchange="handleProjectNameChange()">
+            <button class="btn btn-outline-success" onclick="openNewProjectModal()"><i class="bi bi-plus"></i></button>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <select id="user_projects_select" class="form-select form-select-sm" onchange="loadSelectedProject()">
+            <option value="">-- Saved Projects --</option>
+          </select>
+        </div>
+        <div class="col-md-2">
+          <button class="btn btn-success btn-sm w-100 fw-bold" onclick="startScan()"><i class="bi bi-play-circle-fill"></i> Run Audit</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scanner Config -->
+    <div class="card-luxury mb-3">
+      <div class="row g-2">
+        <div class="col-md-6">
+          <label class="form-label text-muted fw-bold small text-uppercase mb-1">Target URL</label>
+          <input type="text" id="url" class="form-control form-control-sm" value="https://jltmobile.com/knowledge/rugged-industrial-logistics-computers-wms-intralogistics/">
+        </div>
+        <div class="col-md-3 col-6">
+          <label class="form-label text-muted fw-bold small text-uppercase mb-1">Archetype</label>
+          <select id="app_archetype" class="form-select form-select-sm">
+            <option value="general">Website / Portfolio</option>
+            <option value="ecom">E-Commerce</option>
+            <option value="bank">Banking / Security</option>
+            <option value="ai">AI Chatbot</option>
+          </select>
+        </div>
+        <div class="col-md-3 col-6">
+          <label class="form-label text-muted fw-bold small text-uppercase mb-1">Scope</label>
+          <select id="scope" class="form-select form-select-sm">
+            <option value="single">Single Page</option>
+            <option value="all">Entire Domain (Pages)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row g-2 mt-1">
+        <div class="col-md-6">
+          <label class="form-label text-muted fw-bold small text-uppercase mb-1">Credentials & Form Box</label>
+          <textarea id="form_config_text" class="form-control form-control-sm" style="font-family:'JetBrains Mono',monospace; height:70px;"># pincode  : 562114
+# location : Bengaluru 562114
+# username : testuser@example.com
+# password : SecurePassword123</textarea>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label text-muted fw-bold small text-uppercase mb-1">Expected Content (One per line)</label>
+          <textarea id="content" class="form-control form-control-sm" style="height:70px;">Brand Promotion
+Social Media & Brand Promotion
+Mulugundam Village</textarea>
+        </div>
+      </div>
+
+      <!-- Hidden Google Apps Script Webhook Endpoint -->
+      <input type="hidden" id="gas_webhook_url" value="https://script.google.com/macros/s/AKfycbxnOl3ddjPuR6lY6hrlUEdR430DFbrseHNdN_ZHHRETGMaoRrZauYlvIowjdODrvRhTyA/exec">
+
+      <div class="d-flex gap-4 mt-2">
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="visual_mode">
+          <label class="form-check-label small" for="visual_mode">Live Visual Browser</label>
+        </div>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="record_video" checked>
+          <label class="form-check-label small" for="record_video">Record Video (.webm)</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW: Performed Test Cases Table -->
+    <div id="view-testcases" class="view-section hidden">
+      <div class="card-luxury">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h6 class="fw-bold text-success mb-0"><i class="bi bi-card-checklist"></i> Performed Test Cases (<span id="tc-total-count">0</span> Total)</h6>
+          <button class="btn btn-warning btn-sm fw-bold text-dark" onclick="downloadAllTestCasesCSV()"><i class="bi bi-download"></i> Download Cases Sheet</button>
+        </div>
+        <div class="table-responsive" style="max-height: 480px; overflow-y: auto;">
+          <table class="table table-sm table-bordered table-hover mb-0">
+            <thead class="table-light"><tr><th>ID</th><th>Suite</th><th>Scenario</th><th>Severity</th><th>Execution Steps</th><th>Status</th><th>Verification Outcome</th></tr></thead>
+            <tbody id="performed-tc-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- VIEW: Author Custom Test Cases -->
+    <div id="view-writer" class="view-section hidden">
+      <div class="card-luxury">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h6 class="fw-bold text-success mb-0"><i class="bi bi-pencil-square"></i> Author Custom Test Cases</h6>
+          <button class="btn btn-warning btn-sm fw-bold text-dark" onclick="addCustomTestCase()"><i class="bi bi-plus-circle"></i> Add Scenario</button>
+        </div>
+        <div class="p-2 bg-light border rounded mb-2">
+          <div class="row g-2 mb-1">
+            <div class="col-md-3">
+              <label class="small fw-bold">Test Suite</label>
+              <input type="text" id="tc_in_suite" class="form-control form-control-sm" value="Authentication & Security">
+            </div>
+            <div class="col-md-6">
+              <label class="small fw-bold">Scenario Title</label>
+              <input type="text" id="tc_in_title" class="form-control form-control-sm" placeholder="Scenario name...">
+            </div>
+            <div class="col-md-3">
+              <label class="small fw-bold">Severity</label>
+              <select id="tc_in_severity" class="form-select form-select-sm">
+                <option value="Blocker">Blocker</option>
+                <option value="Critical">Critical</option>
+                <option value="Normal" selected>Normal</option>
+              </select>
+            </div>
+          </div>
+          <div class="row g-2">
+            <div class="col-md-6">
+              <label class="small fw-bold">Execution Steps</label>
+              <textarea id="tc_in_steps" class="form-control form-control-sm" rows="2" placeholder="1. Action steps..."></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="small fw-bold">Expected Outcome</label>
+              <textarea id="tc_in_expected" class="form-control form-control-sm" rows="2" placeholder="Expected outcome..."></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-sm table-bordered table-hover mb-0">
+            <thead class="table-light"><tr><th>ID</th><th>Suite</th><th>Scenario</th><th>Severity</th><th>Steps</th><th>Expected</th><th>Action</th></tr></thead>
+            <tbody id="custom-tc-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Views -->
+    <div id="results" class="hidden">
+      <!-- AI Guidance -->
+      <div class="card-luxury p-2 mb-3 bg-light border-success">
+        <h6 class="text-success fw-bold small mb-1"><i class="bi bi-robot"></i> In-Page AI Copilot Guidance</h6>
+        <div id="copilot-advice" class="small text-muted" style="font-size:0.8rem;"></div>
+      </div>
+
+      <!-- VIEW: Overview & Graphs -->
+      <div id="view-overview" class="view-section">
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <div class="card-luxury" style="min-height:300px;">
+              <h6 class="fw-bold mb-2 text-muted text-uppercase small">Status Distribution[cite: 4]</h6>
+              <div style="height: 220px; position: relative;"><canvas id="allurePieChart"></canvas></div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card-luxury" style="min-height:300px;">
+              <h6 class="fw-bold mb-2 text-muted text-uppercase small">Severity Distribution[cite: 4]</h6>
+              <div style="height: 220px; position: relative;"><canvas id="allureSeverityChart"></canvas></div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card-luxury" style="min-height:300px;">
+              <h6 class="fw-bold mb-2 text-muted text-uppercase small">Execution Durations[cite: 4]</h6>
+              <div style="height: 220px; position: relative;"><canvas id="allureDurationChart"></canvas></div>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="card-luxury d-flex flex-column justify-content-center" style="min-height:300px;">
+              <h6 class="fw-bold mb-2 text-muted text-uppercase small">Summary</h6>
+              <div class="row g-2 text-center">
+                <div class="col-4"><div class="p-2 border rounded"><span class="small text-muted">Health</span><div class="fs-5 fw-bold text-success" id="stat-health">100%</div></div></div>
+                <div class="col-4"><div class="p-2 border rounded"><span class="small text-muted">Pages</span><div class="fs-5 fw-bold text-info" id="stat-pages">0</div></div></div>
+                <div class="col-4"><div class="p-2 border rounded"><span class="small text-muted">Links</span><div class="fs-5 fw-bold text-primary" id="stat-links">0</div></div></div>
+                <div class="col-4"><div class="p-2 border rounded"><span class="small text-muted">Buttons</span><div class="fs-5 fw-bold text-warning" id="stat-buttons">0</div></div></div>
+                <div class="col-4"><div class="p-2 border rounded"><span class="small text-muted">Failures</span><div class="fs-5 fw-bold text-danger" id="stat-failures">0</div></div></div>
+                <div class="col-4"><div class="p-2 border rounded"><span class="small text-muted">Duration</span><div class="fs-5 fw-bold" id="stat-duration">0s</div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW: Failures -->
+      <div id="view-failures" class="view-section hidden">
+        <div class="card-luxury">
+          <h6 class="text-danger fw-bold mb-2"><i class="bi bi-exclamation-triangle-fill"></i> Failure Logs</h6>
+          <div id="failures-list-container" class="mb-3"></div>
+          <div class="row g-2" id="fail-gallery"></div>
+        </div>
+      </div>
+
+      <!-- VIEW: Content Diff -->
+      <div id="view-content" class="view-section hidden">
+        <div class="row g-2 mb-3">
+          <div class="col-md-3 col-6">
+            <div class="card-luxury border-success border-top border-3 p-2">
+              <h6 class="fw-bold text-success small d-flex justify-content-between">Matched <span id="m-count" class="badge bg-success">0</span></h6>
+              <div id="matched-list" style="max-height: 200px; overflow-y:auto; font-size: 0.8rem;"></div>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="card-luxury border-danger border-top border-3 p-2">
+              <h6 class="fw-bold text-danger small d-flex justify-content-between">Missing <span id="mis-count" class="badge bg-danger">0</span></h6>
+              <div id="missing-list" style="max-height: 200px; overflow-y:auto; font-size: 0.8rem;"></div>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="card-luxury border-warning border-top border-3 p-2">
+              <h6 class="fw-bold text-warning small d-flex justify-content-between">Duplicates <span id="dup-count" class="badge bg-warning text-dark">0</span></h6>
+              <div id="duplicate-list" style="max-height: 200px; overflow-y:auto; font-size: 0.8rem;"></div>
+            </div>
+          </div>
+          <div class="col-md-3 col-6">
+            <div class="card-luxury border-info border-top border-3 p-2">
+              <h6 class="fw-bold text-info small d-flex justify-content-between">Website Extra <span id="extra-count" class="badge bg-info">0</span></h6>
+              <div id="extra-list" style="max-height: 200px; overflow-y:auto; font-size: 0.8rem;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW: Elements -->
+      <div id="view-elements" class="view-section hidden">
+        <div class="card-luxury">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="fw-bold mb-0">Discovered Elements</h6>
+            <input type="text" id="element-filter-input" class="form-control form-control-sm w-25" placeholder="Filter..." onkeyup="filterElementsTable()">
+          </div>
+          <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+            <table class="table table-sm table-hover table-bordered mb-0" id="elements-table">
+              <thead class="table-light"><tr><th>Type</th><th>Text</th><th>ID / Target</th><th>Source Page</th></tr></thead>
+              <tbody id="elements-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW: Typography -->
+      <div id="view-typography" class="view-section hidden">
+        <div class="card-luxury">
+          <h6 class="fw-bold mb-2">Typography & Palette</h6>
+          <div class="table-responsive">
+            <table class="table table-sm table-hover table-bordered mb-0">
+              <thead class="table-light"><tr><th>Tag</th><th>Font Family</th><th>Size</th><th>Weight</th><th>Color (Hex)</th><th>Sample</th></tr></thead>
+              <tbody id="typo-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW: Pages -->
+      <div id="view-pages" class="view-section hidden">
+        <div class="card-luxury">
+          <h6 class="fw-bold mb-2">Discovered Pages</h6>
+          <div class="table-responsive">
+            <table class="table table-sm table-hover table-bordered mb-0">
+              <thead class="table-light"><tr><th>Page URL</th><th>H1</th><th>H2</th><th>H3</th><th>Links</th><th>Buttons</th></tr></thead>
+              <tbody id="pages-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW: Power BI -->
+      <div id="view-powerbi" class="view-section hidden">
+        <div class="card-luxury mb-3">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="fw-bold text-success mb-0"><i class="bi bi-bar-chart-steps text-warning"></i> Power BI / Excel Analytics</h6>
+            <button class="btn btn-success btn-sm fw-bold" onclick="downloadExcelCSV()"><i class="bi bi-download"></i> Download CSV</button>
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-md-8">
+              <div class="p-2 border rounded bg-white" style="height: 250px; position:relative;">
+                <canvas id="pbiElementsChart"></canvas>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-2 border rounded bg-white text-center d-flex flex-column justify-content-center" style="height: 250px;">
+                <span class="small text-muted fw-bold">Link Reliability</span>
+                <div class="fs-3 fw-bold text-success" id="pbi-reliability">100%</div>
+                <hr class="my-1">
+                <span class="small text-muted fw-bold">Buttons / Page</span>
+                <div class="fs-4 fw-bold text-warning" id="pbi-btn-density">0</div>
+              </div>
+            </div>
+          </div>
+          <pre><code id="powerbi-preview"></code></pre>
+        </div>
+      </div>
+
+      <!-- VIEW: Video Player -->
+      <div id="view-video" class="view-section hidden">
+        <div class="card-luxury">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="fw-bold text-success mb-0"><i class="bi bi-camera-video-fill text-danger"></i> Session Recording</h6>
+            <a id="dl-video-btn" class="btn btn-outline-success btn-sm fw-bold" download><i class="bi bi-download"></i> Download Video</a>
+          </div>
+          <div class="ratio ratio-16x9 bg-black rounded border border-warning shadow-sm">
+            <video id="player-video" controls autoplay muted style="max-height: 450px; width:100%;"></video>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW: Code Studio -->
+      <div id="view-code" class="view-section hidden">
+        <div class="card-luxury">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="btn-group btn-group-sm">
+              <button class="btn btn-outline-secondary active" id="btn-py" onclick="switchLang('python')">Python</button>
+              <button class="btn btn-outline-secondary" id="btn-java" onclick="switchLang('java')">Java</button>
+              <button class="btn btn-outline-secondary" id="btn-js" onclick="switchLang('javascript')">JavaScript</button>
+              <button class="btn btn-outline-secondary" id="btn-ts" onclick="switchLang('typescript')">TypeScript</button>
+              <button class="btn btn-outline-secondary" id="btn-cs" onclick="switchLang('csharp')">C#</button>
+              <button class="btn btn-outline-secondary" id="btn-php" onclick="switchLang('php')">PHP</button>
+            </div>
+            <button class="btn btn-success btn-sm fw-bold" onclick="downloadCurrentCode()"><i class="bi bi-download"></i> Download Script</button>
+          </div>
+          <pre><code id="code-output"></code></pre>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Right-Side Dock -->
+  <aside class="sidebar-right">
+    <div class="dock-btn" onclick="navigate('testcases')" title="Performed Test Cases"><i class="bi bi-card-checklist text-success"></i></div>
+    <div class="dock-btn" onclick="navigate('writer')" title="Write Test Case"><i class="bi bi-pencil-square text-primary"></i></div>
+    <div class="dock-btn" onclick="downloadAllTestCasesCSV()" title="Export Test Cases"><i class="bi bi-file-earmark-text text-success"></i></div>
+    <div class="dock-btn" onclick="downloadProjectBundle()" title="Project Bundle ZIP"><i class="bi bi-file-zip text-warning"></i></div>
+    <div class="dock-btn" onclick="startScan()" title="Run Audit"><i class="bi bi-play-circle-fill text-success"></i></div>
+    <div class="dock-btn text-danger" onclick="stopServer()" title="Stop Server"><i class="bi bi-stop-circle-fill"></i></div>
+  </aside>
+
+  <!-- IN-APP MODAL 1: Mandatory Authentication Modal -->
+  <div id="appAuthModal" class="app-modal-backdrop hidden">
+    <div class="app-modal-dialog">
+      <div class="app-modal-header">
+        <h6 class="mb-0 fw-bold"><i class="bi bi-shield-lock-fill text-warning me-1"></i>KPDBC QA Studio</h6>
+        <button class="btn btn-sm btn-link text-white text-decoration-none" onclick="closeAuthModal()">✕</button>
+      </div>
+      <div class="app-modal-body">
+        <ul class="nav nav-pills nav-fill mb-3" id="authTabs">
+          <li class="nav-item"><a class="nav-link active py-1" onclick="switchAuthTab('login')">Login</a></li>
+          <li class="nav-item"><a class="nav-link py-1" onclick="switchAuthTab('register')">Register</a></li>
+        </ul>
+
+        <!-- Login Form -->
+        <div id="auth-login-box">
+          <div class="mb-2">
+            <label class="small fw-bold">KPDBC User ID</label>
+            <input type="text" id="auth_login_uid" class="form-control form-control-sm" placeholder="e.g. KPDBC_BADESAHEB_123">
+          </div>
+          <div class="mb-2">
+            <label class="small fw-bold">Password</label>
+            <input type="password" id="auth_login_password" class="form-control form-control-sm" placeholder="••••••••">
+          </div>
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <a href="#" class="small text-muted" onclick="showForgotPassword()">Forgot Password?</a>
+          </div>
+          <button class="btn btn-success btn-sm w-100 fw-bold" onclick="submitLogin()">Login</button>
+        </div>
+
+        <!-- Register Form -->
+        <div id="auth-register-box" class="hidden">
+          <div class="mb-2">
+            <label class="small fw-bold">Full Name</label>
+            <input type="text" id="auth_reg_name" class="form-control form-control-sm" placeholder="e.g. Dudekula Badesaheb">
+          </div>
+          <div class="mb-2">
+            <label class="small fw-bold">Email Address</label>
+            <input type="email" id="auth_reg_email" class="form-control form-control-sm" placeholder="name@domain.com">
+          </div>
+          <div class="mb-3">
+            <label class="small fw-bold">Create Password</label>
+            <input type="password" id="auth_reg_password" class="form-control form-control-sm" placeholder="••••••••">
+          </div>
+          <button class="btn btn-success btn-sm w-100 fw-bold" onclick="submitRegister()">Register & Generate KPDBC ID</button>
+        </div>
+
+        <!-- Forgot Password Form -->
+        <div id="auth-forgot-box" class="hidden">
+          <p class="small text-muted mb-2">Enter your registered email to receive your password reset verification code.</p>
+          <div class="mb-2">
+            <label class="small fw-bold">Registered Email</label>
+            <input type="email" id="auth_forgot_email" class="form-control form-control-sm" placeholder="name@domain.com">
+          </div>
+          <div id="reset-code-subbox" class="hidden mb-2 p-2 bg-light border rounded">
+            <label class="small fw-bold">Reset Verification Code</label>
+            <input type="text" id="auth_reset_code" class="form-control form-control-sm mb-1" placeholder="6-digit code">
+            <label class="small fw-bold">New Password</label>
+            <input type="password" id="auth_reset_newpwd" class="form-control form-control-sm" placeholder="••••••••">
+            <button class="btn btn-warning btn-sm w-100 mt-2 fw-bold" onclick="submitResetPassword()">Submit New Password</button>
+          </div>
+          <button class="btn btn-primary btn-sm w-100 fw-bold" id="send-reset-btn" onclick="submitForgotPassword()">Send Reset Code</button>
+          <div class="text-center mt-2">
+            <a href="#" class="small text-secondary" onclick="switchAuthTab('login')">Back to Login</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IN-APP MODAL 2: Create New Project Popup -->
+  <div id="newProjectModal" class="app-modal-backdrop hidden">
+    <div class="app-modal-dialog" style="max-width: 420px;">
+      <div class="app-modal-header">
+        <h6 class="mb-0 fw-bold"><i class="bi bi-folder-plus text-warning me-1"></i>Create New Project</h6>
+        <button class="btn btn-sm btn-link text-white text-decoration-none" onclick="closeNewProjectModal()">✕</button>
+      </div>
+      <div class="app-modal-body">
+        <label class="small fw-bold mb-1">Enter Project Name</label>
+        <input type="text" id="new_project_input" class="form-control form-control-sm mb-3" placeholder="e.g. Project_2, Amazon_Checkout">
+        <div class="d-flex justify-content-end gap-2">
+          <button class="btn btn-outline-secondary btn-sm" onclick="closeNewProjectModal()">Cancel</button>
+          <button class="btn btn-success btn-sm fw-bold" onclick="confirmNewProject()">Create Workspace</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IN-APP MODAL 3: Failure Screenshot Enlarge Viewer -->
+  <div id="imageViewerModal" class="app-modal-backdrop hidden">
+    <div class="app-modal-dialog modal-dialog-large">
+      <div class="app-modal-header">
+        <h6 class="mb-0 fw-bold" id="image-viewer-title"><i class="bi bi-image text-warning me-1"></i>Failure Snapshot Viewer</h6>
+        <button class="btn btn-sm btn-link text-white text-decoration-none" onclick="closeImageModal()">✕</button>
+      </div>
+      <div class="app-modal-body p-2 text-center bg-black">
+        <img id="enlarged-modal-img" src="" class="img-fluid rounded" style="max-height: 72vh;">
+        <div class="d-flex justify-content-end gap-2 mt-2 px-2">
+          <a id="download-current-snapshot-btn" href="" download="" class="btn btn-warning btn-sm fw-bold text-dark"><i class="bi bi-download"></i> Download Image</a>
+          <button class="btn btn-secondary btn-sm" onclick="closeImageModal()">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    let codeSuite = {};
+    let currentLang = 'python';
+    let chart1 = null, chart2 = null, chart3 = null, chartPbi = null;
+    let customTestCasesQueue = [];
+
+    // IN-APP POPUP TOAST SYSTEM
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('app-toast-container');
+      const toast = document.createElement('div');
+      toast.className = `app-toast toast-${type}`;
+      const icon = type === 'error' ? 'bi-exclamation-circle-fill text-danger' : 'bi-check-circle-fill text-success';
+      toast.innerHTML = `<i class="bi ${icon} fs-5"></i><span class="small fw-semibold text-dark">${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.4s ease';
+        setTimeout(() => toast.remove(), 400);
+      }, 4000);
+    }
+
+    // PROJECT ISOLATION RESET
+    function resetProjectViewState() {
+      document.getElementById('results').classList.add('hidden');
+      codeSuite = {};
+      customTestCasesQueue = [];
+      renderCustomTestCases();
+
+      const elTbody = document.getElementById('performed-tc-tbody');
+      if (elTbody) elTbody.innerHTML = '';
+      const tcCount = document.getElementById('tc-total-count');
+      if (tcCount) tcCount.innerText = '0';
+
+      const failC = document.getElementById('failures-list-container');
+      if (failC) failC.innerHTML = '';
+      const failG = document.getElementById('fail-gallery');
+      if (failG) failG.innerHTML = '';
+
+      const pBody = document.getElementById('pages-table-body');
+      if (pBody) pBody.innerHTML = '';
+      const eBody = document.getElementById('elements-table-body');
+      if (eBody) eBody.innerHTML = '';
+
+      ['matched-list', 'missing-list', 'duplicate-list', 'extra-list'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = '';
+      });
+
+      if (chart1) { chart1.destroy(); chart1 = null; }
+      if (chart2) { chart2.destroy(); chart2 = null; }
+      if (chart3) { chart3.destroy(); chart3 = null; }
+      if (chartPbi) { chartPbi.destroy(); chartPbi = null; }
+    }
+
+    function handleUserIdChange() {
+      const uid = document.getElementById('user_id').value.trim();
+      localStorage.setItem('kpdbc_current_user_id', uid);
+      updateUserBadge();
+      resetProjectViewState();
+      loadUserProjects();
+    }
+
+    function handleProjectNameChange() {
+      resetProjectViewState();
+    }
+
+    function updateUserBadge() {
+      const storedName = localStorage.getItem('kpdbc_current_name');
+      const storedId = localStorage.getItem('kpdbc_current_user_id');
+      const badge = document.getElementById('logged-user-badge');
+      if (storedId && storedId !== 'KPDBC_USER' && storedId !== 'undefined') {
+        const display = storedName && storedName !== 'undefined' ? `${storedName} (${storedId})` : storedId;
+        badge.innerText = `User: ${display}`;
+        badge.className = "badge bg-success text-white border border-success ms-2 px-2 py-1";
+        document.getElementById('user_id').value = storedId;
+      } else {
+        badge.innerText = "User: Guest (Login Required)";
+        badge.className = "badge bg-warning-subtle text-dark border border-warning ms-2 px-2 py-1";
+      }
+    }
+
+    // MODAL DRIVERS (IN-APP)
+    function openAuthModal(tab = 'login') {
+      switchAuthTab(tab);
+      document.getElementById('appAuthModal').classList.remove('hidden');
+    }
+    function closeAuthModal() {
+      document.getElementById('appAuthModal').classList.add('hidden');
+    }
+
+    function openNewProjectModal() {
+      document.getElementById('new_project_input').value = '';
+      document.getElementById('newProjectModal').classList.remove('hidden');
+      setTimeout(() => document.getElementById('new_project_input').focus(), 100);
+    }
+    function closeNewProjectModal() {
+      document.getElementById('newProjectModal').classList.add('hidden');
+    }
+    function confirmNewProject() {
+      const name = document.getElementById('new_project_input').value.trim();
+      if (!name) return showToast("Please enter a project name.", "error");
+      resetProjectViewState();
+      document.getElementById('project_name').value = name;
+      closeNewProjectModal();
+      showToast(`Workspace initialized for: ${name}`, "success");
+    }
+
+    function openModal(src, title = "Failure Snapshot") {
+      document.getElementById('enlarged-modal-img').src = src;
+      document.getElementById('image-viewer-title').innerHTML = `<i class="bi bi-image text-warning me-1"></i>${title}`;
+      const dlBtn = document.getElementById('download-current-snapshot-btn');
+      dlBtn.href = src;
+      dlBtn.download = src.split('/').pop() || 'snapshot.png';
+      document.getElementById('imageViewerModal').classList.remove('hidden');
+    }
+    function closeImageModal() {
+      document.getElementById('imageViewerModal').classList.add('hidden');
+    }
+
+    function switchAuthTab(mode) {
+      document.querySelectorAll('#authTabs .nav-link').forEach(l => l.classList.remove('active'));
+      const activeIdx = mode === 'login' ? 0 : 1;
+      const tabLinks = document.querySelectorAll('#authTabs .nav-link');
+      if (tabLinks[activeIdx]) tabLinks[activeIdx].classList.add('active');
+
+      document.getElementById('auth-login-box').classList.toggle('hidden', mode !== 'login');
+      document.getElementById('auth-register-box').classList.toggle('hidden', mode !== 'register');
+      document.getElementById('auth-forgot-box').classList.add('hidden');
+    }
+
+    function showForgotPassword() {
+      document.getElementById('auth-login-box').classList.add('hidden');
+      document.getElementById('auth-register-box').classList.add('hidden');
+      document.getElementById('auth-forgot-box').classList.remove('hidden');
+    }
+
+    async function submitRegister() {
+      const name = document.getElementById('auth_reg_name').value.trim();
+      const email = document.getElementById('auth_reg_email').value.trim();
+      const password = document.getElementById('auth_reg_password').value.trim();
+      if (!name || !email || !password) return showToast("Fill all registration fields.", "error");
+
+      const resp = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password })
+      });
+      const data = await resp.json();
+      if (resp.ok && data.status === "success") {
+        showToast(`Registered successfully! ID: ${data.kpdbc_id}`, "success");
+        localStorage.setItem('kpdbc_current_user_id', data.kpdbc_id);
+        localStorage.setItem('kpdbc_current_name', name);
+        document.getElementById('auth_login_uid').value = data.kpdbc_id;
+        document.getElementById('user_id').value = data.kpdbc_id;
+        updateUserBadge();
+        switchAuthTab('login');
+      } else {
+        showToast(data.message || data.error || "Registration failed.", "error");
+      }
+    }
+
+    async function submitLogin() {
+      const user_id = document.getElementById('auth_login_uid').value.trim();
+      const password = document.getElementById('auth_login_password').value.trim();
+      if (!user_id || !password) return showToast("Enter User ID and Password.", "error");
+
+      const resp = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id, password })
+      });
+      const data = await resp.json();
+      if (resp.ok && data.status === "success") {
+        const userName = data.name || user_id;
+        const kpdbcId = data.kpdbc_id || user_id;
+        localStorage.setItem('kpdbc_current_user_id', kpdbcId);
+        localStorage.setItem('kpdbc_current_name', userName);
+
+        updateUserBadge();
+        closeAuthModal();
+        resetProjectViewState();
+        loadUserProjects();
+        showToast(`Welcome back, ${userName}!`, "success");
+      } else {
+        showToast(data.message || data.error || "Login failed.", "error");
+      }
+    }
+
+    async function submitForgotPassword() {
+      const email = document.getElementById('auth_forgot_email').value.trim();
+      if (!email) return showToast("Enter your registered email.", "error");
+
+      const resp = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await resp.json();
+      if (resp.ok && data.status === "success") {
+        showToast(data.message, "success");
+        document.getElementById('reset-code-subbox').classList.remove('hidden');
+        document.getElementById('send-reset-btn').classList.add('hidden');
+      } else {
+        showToast(data.message || data.error || "Request failed.", "error");
+      }
+    }
+
+    async function submitResetPassword() {
+      const email = document.getElementById('auth_forgot_email').value.trim();
+      const reset_code = document.getElementById('auth_reset_code').value.trim();
+      const new_password = document.getElementById('auth_reset_newpwd').value.trim();
+      if (!reset_code || !new_password) return showToast("Enter reset code and new password.", "error");
+
+      const resp = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, reset_code, new_password })
+      });
+      const data = await resp.json();
+      if (resp.ok && data.status === "success") {
+        showToast(data.message, "success");
+        document.getElementById('auth_login_uid').value = data.kpdbc_id;
+        switchAuthTab('login');
+      } else {
+        showToast(data.message || data.error || "Reset failed.", "error");
+      }
+    }
+
+    function addCustomTestCase() {
+      const suite = document.getElementById('tc_in_suite').value.trim() || 'Custom';
+      const title = document.getElementById('tc_in_title').value.trim();
+      const severity = document.getElementById('tc_in_severity').value;
+      const steps = document.getElementById('tc_in_steps').value.trim();
+      const expected = document.getElementById('tc_in_expected').value.trim();
+
+      if (!title) return showToast("Enter Scenario Title.", "error");
+
+      customTestCasesQueue.push({
+        id: `TC_CUSTOM_${customTestCasesQueue.length + 1}`,
+        suite, title, severity, steps, expected,
+        status: "PASS"
+      });
+      renderCustomTestCases();
+
+      document.getElementById('tc_in_title').value = '';
+      document.getElementById('tc_in_steps').value = '';
+      document.getElementById('tc_in_expected').value = '';
+      showToast("Custom test case added to queue.", "success");
+    }
+
+    function removeCustomTestCase(index) {
+      customTestCasesQueue.splice(index, 1);
+      renderCustomTestCases();
+    }
+
+    function renderCustomTestCases() {
+      const tbody = document.getElementById('custom-tc-table-body');
+      tbody.innerHTML = '';
+      customTestCasesQueue.forEach((tc, idx) => {
+        tbody.innerHTML += `<tr>
+          <td><b>${tc.id}</b></td>
+          <td>${tc.suite}</td>
+          <td>${tc.title}</td>
+          <td><span class="badge bg-secondary">${tc.severity}</span></td>
+          <td><small>${tc.steps}</small></td>
+          <td><small>${tc.expected}</small></td>
+          <td><button class="btn btn-sm btn-outline-danger py-0" onclick="removeCustomTestCase(${idx})">✕</button></td>
+        </tr>`;
+      });
+    }
+
+    function navigate(view) {
+      document.querySelectorAll('.sidebar-left .nav-item').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+
+      const navBtn = document.getElementById(`nav-${view}`);
+      if (navBtn) navBtn.classList.add('active');
+
+      const targetView = document.getElementById(`view-${view}`);
+      if (targetView) targetView.classList.remove('hidden');
+    }
+
+    async function loadUserProjects() {
+      const userId = document.getElementById('user_id').value.trim();
+      if (!userId || userId === 'KPDBC_USER') return;
+      const resp = await fetch(`/api/user-projects?user_id=${userId}`);
+      const data = await resp.json();
+      const select = document.getElementById('user_projects_select');
+      select.innerHTML = '<option value="">-- Saved Projects --</option>';
+      data.projects.forEach(p => {
+        select.innerHTML += `<option value="${p}">${p}</option>`;
+      });
+    }
+
+    async function loadSelectedProject() {
+      const userId = document.getElementById('user_id').value.trim();
+      const proj = document.getElementById('user_projects_select').value;
+      if (!proj) return;
+      
+      resetProjectViewState();
+      document.getElementById('project_name').value = proj;
+      
+      const resp = await fetch(`/api/load-project?user_id=${userId}&project_name=${proj}`);
+      if (resp.ok) {
+        const data = await resp.json();
+        renderResults(data);
+        showToast(`Loaded ${proj} data successfully!`, "success");
+      }
+    }
+
+    async function startScan() {
+      const overlay = document.getElementById('scan-overlay');
+      overlay.classList.remove('hidden');
+
+      const rawContent = document.getElementById('content').value;
+      const cleanContent = rawContent.split('\n').map(l => l.trim()).filter(l => l.length > 2);
+
+      const payload = {
+        user_id: document.getElementById('user_id').value.trim(),
+        project_name: document.getElementById('project_name').value.trim(),
+        url: document.getElementById('url').value.trim(),
+        app_archetype: document.getElementById('app_archetype').value,
+        scope: document.getElementById('scope').value,
+        form_config_text: document.getElementById('form_config_text').value,
+        gas_webhook_url: document.getElementById('gas_webhook_url').value.trim(),
+        custom_test_cases: customTestCasesQueue,
+        expected_content: cleanContent,
+        visual_mode: document.getElementById('visual_mode').checked,
+        record_video: document.getElementById('record_video').checked
+      };
+
+      try {
+        const resp = await fetch('/api/scan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        
+        if (!resp.ok) throw new Error(await resp.text());
+
+        const data = await resp.json();
+        renderResults(data);
+        loadUserProjects();
+        showToast("Full application audit completed successfully!", "success");
+      } catch (err) {
+        showToast("Execution Error: " + err.message, "error");
+      } finally {
+        overlay.classList.add('hidden');
+      }
+    }
+
+    function renderResults(data) {
+      document.getElementById('results').classList.remove('hidden');
+      const audit = data.audit;
+      codeSuite = data.code;
+      const s = audit.summary;
+      const testCases = data.test_cases || [];
+
+      document.getElementById('stat-health').innerText = `${s.overall_health_score}%`;
+      document.getElementById('stat-pages').innerText = s.total_pages_tested;
+      document.getElementById('stat-links').innerText = s.total_links_verified;
+      document.getElementById('stat-buttons').innerText = s.total_buttons_tested;
+      document.getElementById('stat-failures').innerText = s.total_failures;
+      document.getElementById('stat-duration').innerText = `${s.duration}s`;
+
+      renderAllureCharts(s);
+      renderPowerBiCharts(audit.power_bi_metrics);
+
+      // Render Performed Test Cases Table
+      document.getElementById('tc-total-count').innerText = testCases.length;
+      const tcBody = document.getElementById('performed-tc-tbody');
+      tcBody.innerHTML = '';
+      testCases.forEach(tc => {
+        tcBody.innerHTML += `<tr>
+          <td><b>${tc.id}</b></td>
+          <td><span class="badge bg-secondary">${tc.suite}</span></td>
+          <td>${tc.title}</td>
+          <td><span class="badge ${tc.severity === 'Blocker' ? 'bg-danger' : 'bg-primary'}">${tc.severity}</span></td>
+          <td><small>${tc.steps}</small></td>
+          <td><span class="badge bg-success">${tc.status}</span></td>
+          <td><small class="text-success"><i class="bi bi-check-circle"></i> ${tc.verification || 'Executed successfully'}</small></td>
+        </tr>`;
+      });
+
+      // Video Integration
+      const player = document.getElementById('player-video');
+      const dlBtn = document.getElementById('dl-video-btn');
+      if (audit.video_url) {
+        player.src = audit.video_url;
+        dlBtn.href = audit.video_url;
+      }
+
+      // AI Advice
+      const adviceBox = document.getElementById('copilot-advice');
+      adviceBox.innerHTML = '';
+      audit.ai_copilot_advice.forEach(adv => {
+        adviceBox.innerHTML += `<div><i class="bi bi-arrow-right-short text-success"></i> ${adv}</div>`;
+      });
+
+      // Failures
+      const failContainer = document.getElementById('failures-list-container');
+      const failGallery = document.getElementById('fail-gallery');
+      failContainer.innerHTML = '';
+      failGallery.innerHTML = '';
+
+      if (audit.failures && audit.failures.length > 0) {
+        audit.failures.forEach((f) => {
+          failContainer.innerHTML += `
+            <div class="p-2 mb-2 border rounded border-danger bg-light">
+              <div class="d-flex justify-content-between">
+                <span class="badge bg-danger">${f.type}</span>
+                <span class="small text-muted">${f.page}</span>
+              </div>
+              <b class="d-block mt-1 small">${f.target}</b>
+              <p class="small text-danger mb-0 mt-1"><i class="bi bi-info-circle-fill"></i> ${f.reason}</p>
+            </div>`;
+
+          if (f.screenshot) {
+            failGallery.innerHTML += `
+              <div class="col-md-4">
+                <div class="card p-2 border">
+                  <img src="${f.screenshot}" onclick="openModal('${f.screenshot}', '${f.type}: ${f.target.replace(/'/g, "\\'")}')" style="cursor:pointer;">
+                  <b class="d-block mt-1 small text-danger">${f.type}</b>
+                  <a href="${f.screenshot}" download="${f.filename}" class="btn btn-outline-secondary btn-sm w-100 mt-1" style="font-size:0.75rem;"><i class="bi bi-download"></i> Snapshot</a>
+                </div>
+              </div>`;
+          }
+        });
+      } else {
+        failContainer.innerHTML = '<div class="text-success small"><i class="bi bi-check-circle-fill"></i> All buttons and interactive elements executed with 100% success.</div>';
+      }
+
+      // Content Diff
+      const diff = audit.content_audit;
+      document.getElementById('m-count').innerText = diff.matched.length;
+      document.getElementById('mis-count').innerText = diff.missing_from_page.length;
+      document.getElementById('dup-count').innerText = diff.duplicates.length;
+      document.getElementById('extra-count').innerText = diff.website_extra.length;
+
+      document.getElementById('matched-list').innerHTML = diff.matched.map(t => `<div class="p-1 border-bottom">${t}</div>`).join('') || '<div class="text-muted">None</div>';
+      document.getElementById('missing-list').innerHTML = diff.missing_from_page.map(t => `<div class="p-1 border-bottom text-danger">${t}</div>`).join('') || '<div class="text-muted">None</div>';
+      document.getElementById('duplicate-list').innerHTML = diff.duplicates.map(t => `<div class="p-1 border-bottom"><b>(${t.count}x)</b> ${t.text}</div>`).join('') || '<div class="text-muted">None</div>';
+      document.getElementById('extra-list').innerHTML = diff.website_extra.map(t => `<div class="p-1 border-bottom text-muted">${t}</div>`).join('') || '<div class="text-muted">None</div>';
+
+      // Elements Table
+      const elemBody = document.getElementById('elements-table-body');
+      elemBody.innerHTML = '';
+      (audit.all_buttons || []).forEach(b => {
+        elemBody.innerHTML += `<tr><td><span class="badge bg-primary">Button</span></td><td><b>${b.text}</b></td><td><code>${b.id || 'N/A'}</code></td><td class="small text-muted">${b.page}</td></tr>`;
+      });
+      (audit.links.working || []).forEach(l => {
+        elemBody.innerHTML += `<tr><td><span class="badge bg-success">Link</span></td><td class="text-truncate" style="max-width:260px;">${l}</td><td><code>href</code></td><td class="small text-muted">${l}</td></tr>`;
+      });
+
+      // Typography
+      const typoBody = document.getElementById('typo-table-body');
+      typoBody.innerHTML = '';
+      audit.typography_palette.forEach(t => {
+        typoBody.innerHTML += `<tr><td><span class="badge bg-secondary">${t.tag}</span></td><td>${t.fontFamily}</td><td>${t.fontSize}</td><td>${t.fontWeight}</td><td><span class="color-swatch" style="background-color: ${t.hexColor}"></span><code>${t.hexColor}</code></td><td>"${t.sample}"</td></tr>`;
+      });
+
+      // Pages
+      const pageBody = document.getElementById('pages-table-body');
+      pageBody.innerHTML = '';
+      for (const [pUrl, pData] of Object.entries(audit.pages)) {
+        pageBody.innerHTML += `<tr><td><a href="${pUrl}" target="_blank" class="text-primary text-decoration-none">${pUrl}</a></td><td>${pData.counts.h1}</td><td>${pData.counts.h2}</td><td>${pData.counts.h3}</td><td>${pData.counts.links}</td><td>${pData.counts.buttons}</td></tr>`;
+      }
+
+      document.getElementById('powerbi-preview').innerText = codeSuite.excel_csv;
+      switchLang('python');
+    }
+
+    function renderAllureCharts(s) {
+      if (chart1) chart1.destroy();
+      const ctx1 = document.getElementById('allurePieChart').getContext('2d');
+      chart1 = new Chart(ctx1, {
+        type: 'pie',
+        data: {
+          labels: ['Failed', 'Broken', 'Canceled', 'Passed', 'Pending'],
+          datasets: [{
+            data: [s.chart_status.failed, s.chart_status.broken, s.chart_status.canceled, s.chart_status.passed, s.chart_status.pending],
+            backgroundColor: ['#ea4335', '#ff9900', '#94a3b8', '#059669', '#10b981']
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+
+      if (chart2) chart2.destroy();
+      const ctx2 = document.getElementById('allureSeverityChart').getContext('2d');
+      chart2 = new Chart(ctx2, {
+        type: 'bar',
+        data: {
+          labels: ['Blocker', 'Critical', 'Normal', 'Minor', 'Trivial'],
+          datasets: [
+            { label: 'Failed', data: [0, s.chart_severity.critical, 0, 0, 0], backgroundColor: '#ea4335' },
+            { label: 'Broken', data: [s.chart_severity.blocker, 0, 0, 0, 0], backgroundColor: '#ff9900' },
+            { label: 'Passed', data: [0, 0, s.chart_severity.normal, 0, 1], backgroundColor: '#059669' }
+          ]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+
+      if (chart3) chart3.destroy();
+      const ctx3 = document.getElementById('allureDurationChart').getContext('2d');
+      chart3 = new Chart(ctx3, {
+        type: 'bar',
+        data: {
+          labels: ['0-1s', '1-2s', '2-3s', '3-4s', '4-5s', '5-6s', '6-7s+'],
+          datasets: [{
+            label: 'Testcases',
+            data: [s.chart_durations.d_0_1s, s.chart_durations.d_1_2s, s.chart_durations.d_2_3s, s.chart_durations.d_3_4s, s.chart_durations.d_4_5s, s.chart_durations.d_5_6s, s.chart_durations.d_6_7s],
+            backgroundColor: '#0284c7'
+          }]
+        },
+        options: { responsive: true, maintainAspectRatio: false }
+      });
+    }
+
+    function renderPowerBiCharts(pbi) {
+      if (!pbi) return;
+      document.getElementById('pbi-reliability').innerText = pbi.reliability_rate;
+      document.getElementById('pbi-btn-density').innerText = pbi.button_density_per_page;
+
+      if (chartPbi) chartPbi.destroy();
+      const ctx = document.getElementById('pbiElementsChart').getContext('2d');
+      const breakdown = pbi.page_breakdown || [];
+      chartPbi = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: breakdown.map(b => b.name),
+          datasets: [
+            { label: 'Buttons', data: breakdown.map(b => b.buttons), backgroundColor: '#059669' },
+            { label: 'Links', data: breakdown.map(b => b.links), backgroundColor: '#d97706' },
+            { label: 'Headings', data: breakdown.map(b => b.h_tags), backgroundColor: '#0284c7' }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: { x: { stacked: true }, y: { stacked: true } }
+        }
+      });
+    }
+
+    function filterElementsTable() {
+      const q = document.getElementById('element-filter-input').value.toLowerCase();
+      document.querySelectorAll('#elements-table-body tr').forEach(row => {
+        row.style.display = row.innerText.toLowerCase().includes(q) ? '' : 'none';
+      });
+    }
+
+    function switchLang(lang) {
+      currentLang = lang;
+      ['py', 'java', 'js', 'ts', 'cs', 'php'].forEach(id => {
+        const btn = document.getElementById(`btn-${id}`);
+        if (btn) btn.classList.remove('active');
+      });
+      const activeMap = { python: 'btn-py', java: 'btn-java', javascript: 'btn-js', typescript: 'btn-ts', csharp: 'btn-cs', php: 'btn-php' };
+      const targetBtn = document.getElementById(activeMap[lang]);
+      if (targetBtn) targetBtn.classList.add('active');
+
+      const codeBox = document.getElementById('code-output');
+      if (codeBox) {
+        codeBox.innerText = (codeSuite && codeSuite[lang]) ? codeSuite[lang] : '// Run an audit to generate ' + lang + ' code.';
+      }
+    }
+
+    function downloadAllTestCasesCSV() {
+      if (!codeSuite.test_cases_csv) {
+        return showToast("Please run an audit first to generate test cases.", "error");
+      }
+      downloadFile(codeSuite.test_cases_csv, 'Full_QA_Test_Cases_Specification.csv', 'text/csv');
+    }
+
+    function downloadProjectBundle() {
+      const user = document.getElementById('user_id').value.trim() || 'KPDBC_USER';
+      const proj = document.getElementById('project_name').value.trim() || 'Project_1';
+      window.location.href = `/api/download-project-bundle?user_id=${user}&project_name=${proj}`;
+    }
+
+    function downloadExcelCSV() {
+      if (!codeSuite.excel_csv) {
+        return showToast("Run an audit first to generate Power BI CSV.", "error");
+      }
+      downloadFile(codeSuite.excel_csv, 'PowerBI_Excel_QA_Report.csv', 'text/csv');
+    }
+
+    function downloadCurrentCode() {
+      const extMap = { 
+        python: 'test_suite.py', 
+        java: 'FullApplicationQASuite.java', 
+        javascript: 'test_suite.js', 
+        typescript: 'test_suite.ts', 
+        csharp: 'FullApplicationQASuite.cs', 
+        php: 'test_suite.php' 
+      };
+      const fileName = extMap[currentLang] || 'test_suite.txt';
+      const content = (codeSuite && codeSuite[currentLang]) ? codeSuite[currentLang] : '';
+      if (!content) {
+        return showToast("Please run an audit first to generate code.", "error");
+      }
+      downloadFile(content, fileName, 'text/plain');
+    }
+
+    function downloadFile(content, filename, type) {
+      if (!content) return;
+      const blob = new Blob([content], { type });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      a.click();
+    }
+
+    async function stopServer() {
+      if (!confirm("Stop the QA test server?")) return;
+      await fetch('/api/stop', { method: 'POST' });
+      showToast("Server stopped cleanly.", "error");
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      updateUserBadge();
+      const currentId = localStorage.getItem('kpdbc_current_user_id');
+      if (!currentId || currentId === 'undefined') {
+        openAuthModal('login');
+      } else {
+        loadUserProjects();
+      }
+    });
+  </script>
+</body>
+</html>
