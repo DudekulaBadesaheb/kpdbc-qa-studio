@@ -1,0 +1,6 @@
+__pycache__/
+venv/
+videos/*.webm
+screenshots/*.png
+users/
+*.zip
