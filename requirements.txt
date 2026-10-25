@@ -1,14 +1,6 @@
-<<<<<<< HEAD
 fastapi>=0.110.0
 uvicorn[standard]>=0.28.0
 playwright>=1.42.0
 httpx>=0.27.0
 pydantic>=2.6.0
-=======
-fastapi>=0.110.0
-uvicorn[standard]>=0.28.0
-playwright>=1.42.0
-httpx>=0.27.0
-pydantic>=2.6.0
->>>>>>> 867ee7cdfb39582e0761d7eb4008a76afc52b354
 jinja2>=3.1.3
